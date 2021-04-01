@@ -1,0 +1,121 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* auth_metamask
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 13.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-04-01 15:13+0000\n"
+"PO-Revision-Date: 2021-04-01 17:16+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+"Language: es\n"
+"X-Generator: Poedit 2.0.6\n"
+
+#. module: auth_metamask
+#: model_terms:ir.ui.view,arch_db:auth_metamask.metamask_provider
+msgid "- or -"
+msgstr "- o -"
+
+#. module: auth_metamask
+#: model_terms:ir.ui.view,arch_db:auth_metamask.res_users_view_form
+msgid "Address"
+msgstr "Dirección"
+
+#. module: auth_metamask
+#: model_terms:ir.ui.view,arch_db:auth_metamask.res_users_view_form
+msgid "Blockchain info"
+msgstr "Información blockchain"
+
+#. module: auth_metamask
+#: model_terms:ir.ui.view,arch_db:auth_metamask.metamask_provider
+msgid "Login with"
+msgstr "Entrar con"
+
+#. module: auth_metamask
+#: model:ir.model.fields,field_description:auth_metamask.field_res_users__nonce
+msgid "Nonce"
+msgstr ""
+
+#. module: auth_metamask
+#. openerp-web
+#: code:addons/auth_metamask/static/src/js/auth_metamask.js:0
+#, python-format
+msgid "Please activate MetaMask first."
+msgstr "Por favor, active MetaMask antes."
+
+#. module: auth_metamask
+#. openerp-web
+#: code:addons/auth_metamask/static/src/js/auth_metamask.js:0
+#, python-format
+msgid "Please install MetaMask first."
+msgstr "Por favor, instale Metamask antes."
+
+#. module: auth_metamask
+#. openerp-web
+#: code:addons/auth_metamask/static/src/js/auth_metamask.js:0
+#, python-format
+msgid "Please, sign this nonce to allow your login: "
+msgstr "Por favor, firme este \"mientras tanto\" para permitir su entrada:"
+
+#. module: auth_metamask
+#: model:ir.model.fields,field_description:auth_metamask.field_res_users__public_address
+msgid "Public Address"
+msgstr "Dirección pública"
+
+#. module: auth_metamask
+#. openerp-web
+#: code:addons/auth_metamask/static/src/js/auth_metamask.js:0
+#, python-format
+msgid "Signed, waiting response."
+msgstr "Firmado, esperando respuesta"
+
+#. module: auth_metamask
+#. openerp-web
+#: code:addons/auth_metamask/static/src/js/auth_metamask.js:0
+#, python-format
+msgid "Something went wrong."
+msgstr "Algo fue mal"
+
+#. module: auth_metamask
+#. openerp-web
+#: code:addons/auth_metamask/static/src/js/auth_metamask.js:0
+#, python-format
+msgid "Template does not loaded."
+msgstr "La plantilla no se ha cargado"
+
+#. module: auth_metamask
+#: model:ir.model.constraint,message:auth_metamask.constraint_res_users_public_address
+msgid "This public address already exist"
+msgstr "Esta dirección pública ya existe"
+
+#. module: auth_metamask
+#: model:ir.model,name:auth_metamask.model_res_users
+msgid "Users"
+msgstr "Usuarios"
+
+#. module: auth_metamask
+#. openerp-web
+#: code:addons/auth_metamask/static/src/js/auth_metamask.js:0
+#, python-format
+msgid "You has signed your login info. Waiting response, be patient, please . . ."
+msgstr "Has firmado su entrada. Esperando respuesta, sea paciente, por favor . . ."
+
+#. module: auth_metamask
+#. openerp-web
+#: code:addons/auth_metamask/static/src/js/auth_metamask.js:0
+#, python-format
+msgid "You need to allow MetaMask."
+msgstr "Necesita permitir la operación de Metamask."
+
+#. module: auth_metamask
+#. openerp-web
+#: code:addons/auth_metamask/static/src/js/auth_metamask.js:0
+#, python-format
+msgid "You need to sign the message to be able to log in. Error getted "
+msgstr "Necesita firmar el mensaje para permitir su entrada. Se ha capturado el error "
