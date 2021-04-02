@@ -16,7 +16,7 @@ odoo.define("auth_metamask.client", function(require) {
                 this.displayNotification({
                     title: _t("Something went wrong."),
                     message: _t("Template does not loaded."),
-                    type: "Error",
+                    type: "error",
                     sticky: true,
                 });
             }
@@ -34,7 +34,7 @@ odoo.define("auth_metamask.client", function(require) {
                     message: _t(
                         "You has signed your login info. Waiting response, be patient, please . . ."
                     ),
-                    type: "Info",
+                    type: "success",
                     sticky: true,
                 });
                 return {publicAddress, signature};
@@ -45,34 +45,24 @@ odoo.define("auth_metamask.client", function(require) {
                         _t(
                             "You need to sign the message to be able to log in. Error getted "
                         ) + err,
-                    type: "Error",
+                    type: "error",
                     sticky: true,
                 });
             }
         },
-        _onMetamaskLoginClick: async function() {
-            var self = this;
-            if (
-                typeof window.web3 !== "undefined" &&
-                typeof window.web3.currentProvider !== "undefined"
-            ) {
-                // eslint-disable-next-line
-                var web3 = new Web3(window.web3.currentProvider);
-            } else {
-                // eslint-disable-next-line
-                var web3 = new Web3();
+        loginFlow: async function(self) {
+            if (!self) {
+                self = this;
             }
-
             if (!window.ethereum) {
-                this.displayNotification({
+                self.displayNotification({
                     title: _t("Something went wrong."),
                     message: _t("Please install MetaMask first."),
-                    type: "Error",
-                    sticky: true,
+                    type: "error",
+                    sticky: false,
                 });
                 return;
             }
-
             try {
                 // Request account access if needed
                 await window.ethereum.enable();
@@ -80,21 +70,21 @@ odoo.define("auth_metamask.client", function(require) {
                 // eslint-disable-next-line
                 web3 = new Web3(window.ethereum);
             } catch (error) {
-                this.displayNotification({
+                self.displayNotification({
                     title: _t("Something went wrong."),
                     message: _t("You need to allow MetaMask."),
-                    type: "Error",
+                    type: "error",
                     sticky: true,
                 });
                 return;
             }
-
+            // eslint-disable-next-line
             const coinbase = await web3.eth.getCoinbase();
             if (!coinbase) {
-                this.displayNotification({
+                self.displayNotification({
                     title: _t("Something went wrong."),
                     message: _t("Please activate MetaMask first."),
-                    type: "Error",
+                    type: "error",
                     sticky: true,
                 });
                 return;
@@ -106,16 +96,17 @@ odoo.define("auth_metamask.client", function(require) {
                     function(adr_nonce) {
                         var jsonResult = JSON.parse(adr_nonce);
                         return self.handleSignMessage(
+                            // eslint-disable-next-line
                             web3,
                             jsonResult.public_address,
                             jsonResult.nonce
                         );
                     },
                     function(error) {
-                        this.displayNotification({
+                        self.displayNotification({
                             title: _t("Something went wrong."),
                             message: error,
-                            type: "Error",
+                            type: "error",
                             sticky: true,
                         });
                     }
@@ -131,14 +122,41 @@ odoo.define("auth_metamask.client", function(require) {
                             window.location = "/web";
                         })
                         .fail(function(response) {
-                            this.displayNotification({
+                            self.displayNotification({
                                 title: _t("Something went wrong."),
                                 message: response.responseText,
-                                type: "Error",
+                                type: "error",
                                 sticky: true,
                             });
                         });
                 });
+        },
+        _onMetamaskLoginClick: async function() {
+            var self = this;
+            if (!window.ethereum) {
+                this.displayNotification({
+                    title: _t("Please, trying to connect."),
+                    message: _t("MetaMask initialization, be patient."),
+                    type: "info",
+                    sticky: false,
+                });
+                window.addEventListener(
+                    "ethereum#initialized",
+                    function() {
+                        self.loginFlow(this);
+                    },
+                    {once: true}
+                );
+
+                // If the event is not dispatched by the end of the timeout,
+                // the user probably doesn't have MetaMask installed.
+                setTimeout(function() {
+                    self.loginFlow(self);
+                }, 3000); // 3 seconds
+
+                return;
+            }
+            this.loginFlow(this);
         },
     });
 });
