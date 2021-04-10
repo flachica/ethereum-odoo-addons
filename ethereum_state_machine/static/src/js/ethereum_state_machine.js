@@ -20,12 +20,6 @@ odoo.define("ethereum_state_machine.client", function(require) {
                 self = this;
             }
             if (!window.ethereum) {
-                self.displayNotification({
-                    title: _t("Something went wrong."),
-                    message: _t("Please install MetaMask first."),
-                    type: "error",
-                    sticky: false,
-                });
                 return;
             }
             try {
@@ -55,23 +49,23 @@ odoo.define("ethereum_state_machine.client", function(require) {
                 return;
             }
 
-            const publicAddress = coinbase.toLowerCase();
-            self.displayNotification({
-                title: _t("Public address getted."),
-                message: _t(publicAddress),
-                type: "info",
-                sticky: true,
-            });
+            // Const publicAddress = coinbase.toLowerCase();
+            //            self.displayNotification({
+            //                title: _t("Public address getted."),
+            //                message: _t(publicAddress),
+            //                type: "info",
+            //                sticky: true,
+            //            });
         },
         initMetaMask: function() {
             var self = this;
             if (!window.ethereum) {
-                self.displayNotification({
-                    title: _t("Please, trying to connect."),
-                    message: _t("MetaMask initialization, be patient."),
-                    type: "info",
-                    sticky: false,
-                });
+                //                Self.displayNotification({
+                //                    title: _t("Please, trying to connect."),
+                //                    message: _t("MetaMask initialization, be patient."),
+                //                    type: "info",
+                //                    sticky: false,
+                //                });
                 window.addEventListener(
                     "ethereum#initialized",
                     function() {
@@ -106,13 +100,6 @@ odoo.define("ethereum_state_machine.client", function(require) {
                         metadata
                     );
                     self.$(".o_statusbar_buttons").append(buttonsEthereumMachine);
-
-                    self.displayNotification({
-                        title: _t("Debugging with bad way."),
-                        message: _t("On model " + self.modelName),
-                        type: "info",
-                        sticky: false,
-                    });
                 }
             });
         },

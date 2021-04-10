@@ -3,7 +3,7 @@
     "category": "Tools",
     "maintainer": "Fernando La Chica",
     "version": "13.0.0.0.0",
-    "depends": ["base", "web", "base_setup", "auth_metamask"],
+    "depends": ["base", "web", "base_setup", "auth_metamask", "crm"],
     "data": [
         "views/assets.xml",
         "views/eth_state_views.xml",
