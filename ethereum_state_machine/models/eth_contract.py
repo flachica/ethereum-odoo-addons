@@ -1,5 +1,13 @@
-from odoo import _, fields, models
+import base64
+import json
+import logging
+
+from solc import compile_standard
+
+from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
+
+_logger = logging.getLogger(__name__)
 
 
 class EthContract(models.Model):
@@ -20,12 +28,51 @@ class EthContract(models.Model):
     state_ids = fields.One2many(
         "eth.contract.state", "contract_id", string="Contract states"
     )
+    sol_file_name = fields.Char("Smart contract file name")
+    sol_file = fields.Binary(string="Smart contract source code")
+    bytecode_file_name = fields.Char("Bytecode file name")
+    bytecode_file = fields.Binary(string="Bytecode")
+    abi_file_name = fields.Char("ABI file name")
+    abi_file = fields.Binary(string="ABI")
 
     def write(self, vals):
-        res = super(EthContract, self).write(vals)
         if vals.get("state") == "open":
             self._prepare_and_publish()
-        return res
+        elif vals.get("state"):
+            vals["bytecode_file"] = None
+            vals["abi_file"] = None
+        return super(EthContract, self).write(vals)
+
+    def _compile_contract(self, contract_id):
+        compiled_sol = compile_standard(
+            {
+                "language": "Solidity",
+                "sources": {
+                    contract_id.sol_file_name: {
+                        "content": """
+                                 {}
+                                 """.format(
+                            base64.b64decode(contract_id.sol_file).decode("utf-8")
+                        )
+                    }
+                },
+                "settings": {
+                    "outputSelection": {
+                        "*": {
+                            "*": ["metadata", "evm.bytecode", "evm.bytecode.sourceMap"]
+                        }
+                    }
+                },
+            },
+            bin=True,
+            abi=True,
+        )
+        compiled_info = compiled_sol["contracts"][contract_id.sol_file_name]
+        key = list(compiled_info.keys())[0]
+        root = compiled_info[key]
+        bytecode = root["evm"]["bytecode"]["object"]
+        abi = json.loads(root["metadata"])["output"]["abi"]
+        return bytecode, abi
 
     def _prepare_and_publish(self):
         for contract_id in self:
@@ -44,7 +91,7 @@ class EthContract(models.Model):
                             )
                         )
                     )
-                if len(state_id.transition_ids) != states_count - 1:
+                if len(state_id.transition_ids) != states_count:
                     raise ValidationError(
                         _(
                             "You must define {} transitions in {} state".format(
@@ -53,4 +100,26 @@ class EthContract(models.Model):
                         )
                     )
                 i += 1
+            bytecode, abi = self._compile_contract(contract_id)
+            contract_id.write(
+                {
+                    "bytecode_file": base64.b64encode(bytecode.encode("utf-8")),
+                    "bytecode_file_name": contract_id.sol_file_name.split(".")[0]
+                    + ".bytecode",
+                    "abi_file": base64.b64encode(json.dumps(abi).encode("utf-8")),
+                    "abi_file_name": contract_id.sol_file_name.split(".")[0] + ".abi",
+                }
+            )
         pass
+
+    @api.model
+    def get_transitions(self, contract_id):
+        self.env.cr.execute(
+            """ Select from_state_id, from_state_sequence, from_state_name,
+                       to_state_id, to_state_sequence, to_state_name, allowed
+                       from eth_contract_state_transition
+                       where contract_id=%s
+                       order by from_state_sequence, to_state_sequence""",
+            (contract_id,),
+        )
+        return self.env.cr.fetchall()

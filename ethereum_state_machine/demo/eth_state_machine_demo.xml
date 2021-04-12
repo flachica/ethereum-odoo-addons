@@ -49,6 +49,26 @@
             <field name="allowed">True</field>
         </record>
         <!--        Transitions not Allowed -->
+        <record id="demo_draft_draft" model="eth.contract.state.transition">
+            <field name="from_state_id" ref="demo_draft" />
+            <field name="to_state_id" ref="demo_draft" />
+            <field name="allowed">False</field>
+        </record>
+        <record id="demo_approve_approve" model="eth.contract.state.transition">
+            <field name="from_state_id" ref="demo_approve" />
+            <field name="to_state_id" ref="demo_approve" />
+            <field name="allowed">False</field>
+        </record>
+        <record id="demo_confirmed_confirmed" model="eth.contract.state.transition">
+            <field name="from_state_id" ref="demo_confirmed" />
+            <field name="to_state_id" ref="demo_confirmed" />
+            <field name="allowed">False</field>
+        </record>
+        <record id="demo_cancel_cancel" model="eth.contract.state.transition">
+            <field name="from_state_id" ref="demo_cancel" />
+            <field name="to_state_id" ref="demo_cancel" />
+            <field name="allowed">False</field>
+        </record>
         <record id="demo_draft_cancel" model="eth.contract.state.transition">
             <field name="from_state_id" ref="demo_draft" />
             <field name="to_state_id" ref="demo_cancel" />

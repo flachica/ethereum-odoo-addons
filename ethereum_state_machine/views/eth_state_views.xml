@@ -50,6 +50,12 @@
                             </div>
                         </group>
                         <group>
+                            <field name="sol_file" filename="sol_file_name" />
+                            <field name="sol_file_name" invisible="1" />
+                            <field name="bytecode_file" filename="bytecode_file_name" />
+                            <field name="bytecode_file_name" invisible="1" />
+                            <field name="abi_file" filename="abi_file_name" />
+                            <field name="abi_file_name" invisible="1" />
                             <field name="model_id" />
                             <field name="state_ids" />
                         </group>

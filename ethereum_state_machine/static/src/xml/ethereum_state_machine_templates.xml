@@ -5,8 +5,9 @@
             <button
                 type="button"
                 t-attf-id="{{ button.id }}"
-                t-attf-message="{{ button.message }}"
-                class="btn btn-primary ethereum-button-message"
+                t-attf-sequence="Go to {{ button.sequence }}"
+                t-attf-deststate="{{ button.id }}"
+                class="btn btn-info ethereum-button-message"
                 style="position: relative;"
             >
                 <span>
