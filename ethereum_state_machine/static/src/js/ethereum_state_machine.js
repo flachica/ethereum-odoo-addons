@@ -241,12 +241,10 @@ odoo.define("ethereum_state_machine.client", function(require) {
             var self = this;
             rpc.query({
                 model: "eth.contract.instance",
-                method: "write",
+                method: "save_state_machine",
                 args: [
-                    [this.instance_id],
-                    {
-                        state_id: el.currentTarget.attributes.deststate.nodeValue,
-                    },
+                    self.instance.id,
+                    el.currentTarget.attributes.deststate.nodeValue,
                 ],
             }).then(function() {
                 self.fireRender();

@@ -1,6 +1,6 @@
 import logging
 
-from odoo import fields, models
+from odoo import api, fields, models
 
 _logger = logging.getLogger(__name__)
 
@@ -18,3 +18,7 @@ class EthContractInstance(models.Model):
     )
     state_sequence = fields.Integer("State sequence", related="state_id.sequence")
     public_address = fields.Char("Public address")
+
+    @api.model
+    def save_state_machine(self, instance_id, state_id):
+        self.browse(int(instance_id)).state_id = int(state_id)
