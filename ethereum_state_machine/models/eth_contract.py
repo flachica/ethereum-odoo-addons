@@ -123,3 +123,14 @@ class EthContract(models.Model):
             (contract_id,),
         )
         return self.env.cr.fetchall()
+
+    @api.model
+    def get_contract_info(self, contract_id):
+        contract_id = self.env["eth.contract"].browse(contract_id)
+        abi = None
+        bytecode = None
+        if contract_id and contract_id.abi_file:
+            abi = base64.b64decode(contract_id.abi_file).decode("utf-8")
+        if contract_id and contract_id.bytecode_file:
+            bytecode = base64.b64decode(contract_id.bytecode_file).decode("utf-8")
+        return json.dumps({"abi": abi, "bytecode": bytecode})

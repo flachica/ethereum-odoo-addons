@@ -14,20 +14,97 @@ odoo.define("ethereum_state_machine.client", function(require) {
         model_id: 0,
         record_id: 0,
         states: [],
+        all_data_states: [],
+        smartcontract_states: [],
         instance_id: 0,
         contract: [],
         instance: [],
+        signerPublicAddress: 0,
+        web3: {},
+        contractPublicAddress: "",
+        gasPrice: "2000000000",
+        smartcontract_current_state: 0,
+        abi: false,
+        bytecode: {},
         events: {
             "click .ethereum-button-message": "_onEthereumButtonMessageClick",
         },
         custom_events: _.extend({}, FormController.prototype.custom_events, {
-            initMetaMask: "_onInitMetaMask",
-            finishInitMetamask: "_onFinishMetaMask",
+            getSignerPublicAddress: "_ongetSignerPublicAddress",
+            finishGetSignerPublicAddress: "_onfinishGetSignerPublicAddress",
             onModelGetted: "_onModelGetted",
             onContractGetted: "_onContractGetted",
             renderStateMachine: "_onRederStateMachine",
             fireRender: "_onFireRender",
+            getSmartcontractCurrentState: "_onGetSmartcontractCurrentState",
         }),
+        getSmartcontractCurrentState: async function() {
+            var self = this;
+            await self.getSignerPublicAddress();
+            await rpc
+                .query({
+                    model: "eth.contract",
+                    method: "get_contract_info",
+                    args: [self.contract.id],
+                })
+                .then(function(contract_info) {
+                    self.abi = JSON.parse(JSON.parse(contract_info).abi);
+                    self.bytecode = JSON.parse(contract_info).bytecode;
+                });
+            var smartContract = {};
+            if (self.contractPublicAddress == "") {
+                var smartContract = new self.web3.eth.Contract(self.abi);
+                await smartContract
+                    .deploy({
+                        data: self.bytecode,
+                        arguments: [self.smartcontract_states],
+                    })
+                    .send({
+                        from: self.signerPublicAddress,
+                    })
+                    .then(function(deployment) {
+                        self.contractPublicAddress = deployment.options.address;
+                    })
+                    .catch(err => {
+                        self.displayNotification({
+                            title: _t("Something went wrong. Code " + err.code),
+                            message: _t(err.message),
+                            type: "danger",
+                            sticky: true,
+                        });
+                    });
+            }
+            smartContract = new self.web3.eth.Contract(
+                self.abi,
+                self.contractPublicAddress,
+                {
+                    from: self.signerPublicAddress,
+                    gasPrice: self.gasPrice,
+                }
+            );
+            var from_param = {from: self.signerPublicAddress};
+            var currentState = 0;
+            await smartContract.methods
+                .currentState()
+                .call(from_param, function(err, res) {
+                    if (err) {
+                        self.displayNotification({
+                            title: _t("Something went wrong. Code " + err.code),
+                            message: _t(err.message),
+                            type: "danger",
+                            sticky: true,
+                        });
+                    } else {
+                        currentState = res;
+                    }
+                });
+            await rpc.query({
+                model: "eth.contract.instance",
+                method: "save_state_machine",
+                args: [self.instance.id, self.contractPublicAddress, currentState],
+            });
+            self.smartcontract_current_state = currentState;
+        },
         renderStateMachine: async function(self, contract) {
             framework.blockUI();
             try {
@@ -79,8 +156,10 @@ odoo.define("ethereum_state_machine.client", function(require) {
                             instance = _instance;
                         });
                 }
+                self.contractPublicAddress = instance[0].public_address;
                 args = [self.contract_id];
-                var allStates = new Array(self.states.length);
+                self.all_data_states = new Array(self.states.length);
+                self.smartcontract_states = new Array(self.states.length);
                 await rpc
                     .query({
                         model: "eth.contract",
@@ -89,19 +168,26 @@ odoo.define("ethereum_state_machine.client", function(require) {
                     })
                     .then(function(_transitions) {
                         for (var i = 0; i < self.states.length; i++) {
-                            allStates[i] = [];
+                            self.all_data_states[i] = [];
+                            self.smartcontract_states[i] = [];
                         }
                         for (var i = 0; i < self.states.length; i++) {
                             var k = 0;
                             for (var j = 0; j < _transitions.length; j++) {
                                 if (_transitions[j][0] == self.states[i]) {
-                                    allStates[i][k] = _transitions[j];
+                                    self.all_data_states[i][k] = _transitions[j];
+                                    var int_value = 0;
+                                    if (_transitions[j][6]) int_value = 1;
+                                    self.smartcontract_states[i][k] = int_value;
                                     k++;
                                 }
                             }
                         }
                     });
-                var state_sequence = allStates[instance[0].state_sequence];
+                self.instance = instance[0];
+                await self.getSmartcontractCurrentState();
+                var state_sequence =
+                    self.all_data_states[self.smartcontract_current_state];
                 var _buttons = new Array();
                 for (var i = 0; i < state_sequence.length; i++) {
                     if (state_sequence[i][6])
@@ -117,7 +203,6 @@ odoo.define("ethereum_state_machine.client", function(require) {
                     buttons: _buttons,
                 });
                 self.$(".o_statusbar_buttons").append(buttonsEthereumMachine);
-                self.instance = instance[0];
             } catch (exception) {
                 self.displayNotification({
                     title: _t("Something went wrong."),
@@ -128,10 +213,7 @@ odoo.define("ethereum_state_machine.client", function(require) {
             }
             framework.unblockUI();
         },
-        finishInitMetamask: async function(self) {
-            if (!self) {
-                self = this;
-            }
+        finishGetSignerPublicAddress: async function(self) {
             if (!window.ethereum) {
                 return;
             }
@@ -140,7 +222,7 @@ odoo.define("ethereum_state_machine.client", function(require) {
                 await window.ethereum.enable();
 
                 // eslint-disable-next-line
-                web3 = new Web3(window.ethereum);
+                self.web3 = new Web3(window.ethereum);
             } catch (error) {
                 self.displayNotification({
                     title: _t("Something went wrong."),
@@ -151,7 +233,7 @@ odoo.define("ethereum_state_machine.client", function(require) {
                 return;
             }
             // eslint-disable-next-line
-            const coinbase = await web3.eth.getCoinbase();
+            const coinbase = await self.web3.eth.getCoinbase();
             if (!coinbase) {
                 self.displayNotification({
                     title: _t("Something went wrong."),
@@ -162,23 +244,17 @@ odoo.define("ethereum_state_machine.client", function(require) {
                 return;
             }
 
-            // Const publicAddress = coinbase.toLowerCase();
-            //            self.displayNotification({
-            //                title: _t("Public address getted."),
-            //                message: _t(publicAddress),
-            //                type: "info",
-            //                sticky: true,
-            //            });
+            self.signerPublicAddress = coinbase.toLowerCase();
         },
-        initMetaMask: function() {
+        getSignerPublicAddress: async function() {
             var self = this;
             if (!window.ethereum) {
-                //                Self.displayNotification({
-                //                    title: _t("Please, trying to connect."),
-                //                    message: _t("MetaMask initialization, be patient."),
-                //                    type: "info",
-                //                    sticky: false,
-                //                });
+                self.displayNotification({
+                    title: _t("Trying to connect."),
+                    message: _t("MetaMask initialization, be patient . . ."),
+                    type: "info",
+                    sticky: false,
+                });
                 window.addEventListener(
                     "ethereum#initialized",
                     function() {
@@ -190,18 +266,17 @@ odoo.define("ethereum_state_machine.client", function(require) {
                 // If the event is not dispatched by the end of the timeout,
                 // the user probably doesn't have MetaMask installed.
                 setTimeout(function() {
-                    self.finishInitMetamask(self);
+                    self.finishGetSignerPublicAddress(self);
                 }, 3000); // 3 seconds
 
                 return;
             }
-            self.finishInitMetamask(this);
+            await self.finishGetSignerPublicAddress(this);
         },
         onContractGetted: function(self, contract) {
             if (contract.length) {
-                self.initMetaMask();
-                self.renderStateMachine(self, contract);
                 self.contract = contract[0];
+                self.renderStateMachine(self, contract);
             }
         },
         onModelGetted: function(model) {
@@ -237,18 +312,38 @@ odoo.define("ethereum_state_machine.client", function(require) {
                 self.onModelGetted(model);
             });
         },
-        _onEthereumButtonMessageClick: function(el) {
+        _onEthereumButtonMessageClick: async function(el) {
             var self = this;
-            rpc.query({
-                model: "eth.contract.instance",
-                method: "save_state_machine",
-                args: [
-                    self.instance.id,
-                    el.currentTarget.attributes.deststate.nodeValue,
-                ],
-            }).then(function() {
+            framework.blockUI();
+            try {
+                await self.getSignerPublicAddress();
+
+                var smartContract = new self.web3.eth.Contract(
+                    self.abi,
+                    self.contractPublicAddress,
+                    {
+                        from: self.signerPublicAddress,
+                        gasPrice: self.gasPrice,
+                    }
+                );
+                var from_param = {from: self.signerPublicAddress};
+                var transaction = await smartContract.methods.setState(
+                    el.currentTarget.attributes.deststate.nodeValue
+                );
+                transaction.send(from_param).then(function(receipt) {
+                    console.log(receipt);
+                });
                 self.fireRender();
-            });
+                self.displayNotification({
+                    title: _t("Your transaction has been send to Metamask"),
+                    message: _t(
+                        "Be patient, if you signed, your transaction must be mined"
+                    ),
+                    type: "success",
+                    sticky: true,
+                });
+            } catch (exception) {}
+            framework.unblockUI();
         },
     });
 });

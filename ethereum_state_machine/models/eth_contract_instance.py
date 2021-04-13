@@ -20,5 +20,10 @@ class EthContractInstance(models.Model):
     public_address = fields.Char("Public address")
 
     @api.model
-    def save_state_machine(self, instance_id, state_id):
-        self.browse(int(instance_id)).state_id = int(state_id)
+    def save_state_machine(self, instance_id, public_address, state_id):
+        instance_id = self.browse(int(instance_id))
+        new_state_id = instance_id.contract_id.state_ids.filtered(
+            lambda s: s.sequence == int(state_id)
+        )
+        instance_id.state_id = new_state_id
+        instance_id.public_address = public_address
