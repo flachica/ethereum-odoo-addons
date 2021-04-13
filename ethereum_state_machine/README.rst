@@ -24,28 +24,31 @@ Install
 =========
 
 You must install solc binary package.
-For ubuntu based:
+For ubuntu based::
 
-sudo add-apt-repository ppa:ethereum/ethereum
-sudo apt-get update
-sudo apt-get install solc
+
+  sudo add-apt-repository ppa:ethereum/ethereum
+  sudo apt-get update
+  sudo apt-get install solc
+
 
 Configure
 =========
 
-Go to `Ethereum State Machine -> Settings -> States`
-
-Fill all states as you like (See demo data)
-
 Go to `Ethereum State Machine -> Settings -> Contracts`
 
-Create a Contract with a Root State of State Machine
+A) Download `this <https://github.com/flachica/ethereum-testing/blob/main/contracts/EthereumStateMachine.sol>`_ and fill `Smart contract source code` field with this file
+B) Change state of contract to `Running` state
 
-Don't forget to have metamask installed
+Go to records of `Referenced Model`. The system auto publish a Smart Contract with this machine state inside
+
+If you need to add a logic of different states, you can add them without having to modify the source code of the smart contract. But make sure the transitions between states are consistent
 
 Roadmap
 ===========
 
+* Operations on the blockchain network are quite heavy. You have to change the design so as not to make the user wait that long
+* Avoid the auto publish Smart Contract. If a record has not published the smart contract, must be showed a button to publish it
 * Improve translations
 * Correct pre-commit config to allow import web3 without eth_account.messages warning
 * Suggest to OCA this project
