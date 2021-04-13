@@ -38,6 +38,16 @@ odoo.define("ethereum_state_machine.client", function(require) {
             fireRender: "_onFireRender",
             getSmartcontractCurrentState: "_onGetSmartcontractCurrentState",
         }),
+        reload: function(params) {
+            this.fireRender();
+            if (params && params.controllerState) {
+                if (params.controllerState.currentId) {
+                    params.currentId = params.controllerState.currentId;
+                }
+                params.ids = params.controllerState.resIds;
+            }
+            return this._super.apply(this, arguments);
+        },
         getSmartcontractCurrentState: async function() {
             var self = this;
             await self.getSignerPublicAddress();
@@ -110,7 +120,7 @@ odoo.define("ethereum_state_machine.client", function(require) {
             try {
                 var instance = {};
                 self.contract_id = contract[0].id;
-                self.record_id = self.model.localData[self.handle].ref;
+                self.record_id = self.model.localData[self.handle].data.id;
                 self.states = contract[0].state_ids;
                 var args = [
                     [
@@ -293,24 +303,30 @@ odoo.define("ethereum_state_machine.client", function(require) {
                 });
             }
         },
-        start: function() {
+        start: async function() {
             var self = this;
-            return this._super().then(function() {
+            var result = await this._super().then(function() {
                 if (self.$(".o_statusbar_buttons")) {
                     self.fireRender();
                 }
             });
+            this.pager.on("pager_changed", this, function() {
+                self.fireRender();
+            });
+            return result;
         },
-        fireRender: function() {
+        fireRender: async function() {
             var self = this;
             var args = [[["model", "=", self.modelName]]];
-            rpc.query({
-                model: "ir.model",
-                method: "search_read",
-                args: args,
-            }).then(function(model) {
-                self.onModelGetted(model);
-            });
+            await rpc
+                .query({
+                    model: "ir.model",
+                    method: "search_read",
+                    args: args,
+                })
+                .then(function(model) {
+                    self.onModelGetted(model);
+                });
         },
         _onEthereumButtonMessageClick: async function(el) {
             var self = this;
