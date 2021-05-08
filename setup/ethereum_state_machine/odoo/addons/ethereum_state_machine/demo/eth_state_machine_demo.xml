@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+        <!--        State machine-->
+        <record id="demo_basic_contract" model="eth.contract">
+            <field name="name">Basic State machine Contract</field>
+            <field name="model_id" ref="crm.model_crm_lead" />
+        </record>
+        <!--        States-->
+        <record id="demo_draft" model="eth.contract.state">
+            <field name="contract_id" ref="demo_basic_contract" />
+            <field name="name">Draft</field>
+            <field name="sequence">0</field>
+        </record>
+        <record id="demo_approve" model="eth.contract.state">
+            <field name="contract_id" ref="demo_basic_contract" />
+            <field name="name">Approve</field>
+            <field name="sequence">1</field>
+        </record>
+        <record id="demo_confirmed" model="eth.contract.state">
+            <field name="contract_id" ref="demo_basic_contract" />
+            <field name="name">Confirmed</field>
+            <field name="sequence">2</field>
+        </record>
+        <record id="demo_cancel" model="eth.contract.state">
+            <field name="contract_id" ref="demo_basic_contract" />
+            <field name="name">Cancel</field>
+            <field name="sequence">3</field>
+        </record>
+        <!--        Transitions Allowed -->
+        <record id="demo_draft_approve" model="eth.contract.state.transition">
+            <field name="from_state_id" ref="demo_draft" />
+            <field name="to_state_id" ref="demo_approve" />
+            <field name="allowed">True</field>
+        </record>
+        <record id="demo_approve_confirmed" model="eth.contract.state.transition">
+            <field name="from_state_id" ref="demo_approve" />
+            <field name="to_state_id" ref="demo_confirmed" />
+            <field name="allowed">True</field>
+        </record>
+        <record id="demo_approve_cancel" model="eth.contract.state.transition">
+            <field name="from_state_id" ref="demo_approve" />
+            <field name="to_state_id" ref="demo_cancel" />
+            <field name="allowed">True</field>
+        </record>
+        <record id="demo_cancel_draft" model="eth.contract.state.transition">
+            <field name="from_state_id" ref="demo_cancel" />
+            <field name="to_state_id" ref="demo_draft" />
+            <field name="allowed">True</field>
+        </record>
+        <!--        Transitions not Allowed -->
+        <record id="demo_draft_draft" model="eth.contract.state.transition">
+            <field name="from_state_id" ref="demo_draft" />
+            <field name="to_state_id" ref="demo_draft" />
+            <field name="allowed">False</field>
+        </record>
+        <record id="demo_approve_approve" model="eth.contract.state.transition">
+            <field name="from_state_id" ref="demo_approve" />
+            <field name="to_state_id" ref="demo_approve" />
+            <field name="allowed">False</field>
+        </record>
+        <record id="demo_confirmed_confirmed" model="eth.contract.state.transition">
+            <field name="from_state_id" ref="demo_confirmed" />
+            <field name="to_state_id" ref="demo_confirmed" />
+            <field name="allowed">False</field>
+        </record>
+        <record id="demo_cancel_cancel" model="eth.contract.state.transition">
+            <field name="from_state_id" ref="demo_cancel" />
+            <field name="to_state_id" ref="demo_cancel" />
+            <field name="allowed">False</field>
+        </record>
+        <record id="demo_draft_cancel" model="eth.contract.state.transition">
+            <field name="from_state_id" ref="demo_draft" />
+            <field name="to_state_id" ref="demo_cancel" />
+            <field name="allowed">False</field>
+        </record>
+        <record id="demo_draft_confirmed" model="eth.contract.state.transition">
+            <field name="from_state_id" ref="demo_draft" />
+            <field name="to_state_id" ref="demo_confirmed" />
+            <field name="allowed">False</field>
+        </record>
+        <record id="demo_approve_draft" model="eth.contract.state.transition">
+            <field name="from_state_id" ref="demo_approve" />
+            <field name="to_state_id" ref="demo_draft" />
+            <field name="allowed">False</field>
+        </record>
+        <record id="demo_confirmed_draft" model="eth.contract.state.transition">
+            <field name="from_state_id" ref="demo_confirmed" />
+            <field name="to_state_id" ref="demo_draft" />
+            <field name="allowed">False</field>
+        </record>
+        <record id="demo_confirmed_approve" model="eth.contract.state.transition">
+            <field name="from_state_id" ref="demo_confirmed" />
+            <field name="to_state_id" ref="demo_approve" />
+            <field name="allowed">False</field>
+        </record>
+        <record id="demo_confirmed_cancel" model="eth.contract.state.transition">
+            <field name="from_state_id" ref="demo_confirmed" />
+            <field name="to_state_id" ref="demo_cancel" />
+            <field name="allowed">False</field>
+        </record>
+        <record id="demo_cancel_approve" model="eth.contract.state.transition">
+            <field name="from_state_id" ref="demo_cancel" />
+            <field name="to_state_id" ref="demo_approve" />
+            <field name="allowed">False</field>
+        </record>
+        <record id="demo_cancel_confirmed" model="eth.contract.state.transition">
+            <field name="from_state_id" ref="demo_cancel" />
+            <field name="to_state_id" ref="demo_confirmed" />
+            <field name="allowed">False</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template
+        id="assets_backend"
+        name="barcodes assets"
+        inherit_id="web.assets_backend"
+    >
+        <xpath expr="." position="inside">
+            <script
+                type="text/javascript"
+                src="/auth_metamask/static/src/lib/web3.min.js"
+            />
+            <script
+                type="text/javascript"
+                src="/ethereum_state_machine/static/src/js/ethereum_state_machine.js"
+            />
+        </xpath>
+    </template>
+</odoo>

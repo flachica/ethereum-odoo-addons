@@ -8,5 +8,5 @@
     "application": True,
     "author": "Fernando La Chica, Guadaltech",
     "license": "AGPL-3",
-    "external_dependencies": {"python": ["web3==5.17.0", "py-solc==3.2.0"]},
+    "external_dependencies": {"python": ["web3==5.17.0"]},
 }

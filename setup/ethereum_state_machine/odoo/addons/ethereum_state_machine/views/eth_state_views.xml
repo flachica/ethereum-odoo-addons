@@ -1,0 +1,98 @@
+<?xml version="1.0" ?>
+<odoo>
+    <data>
+        <record id="view_eth_contract_state_form" model="ir.ui.view">
+            <field name="name">eth.contract.state.form</field>
+            <field name="model">eth.contract.state</field>
+            <field name="arch" type="xml">
+                <form string="States">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" />
+                            </group>
+                            <group>
+                                <field name="sequence" />
+                            </group>
+                        </group>
+                        <group>
+                            <field name="transition_ids">
+                                <tree>
+                                    <field name="from_state_id" />
+                                    <field name="to_state_id" />
+                                    <field name="allowed" />
+                                </tree>
+                            </field>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="view_eth_contract_form" model="ir.ui.view">
+            <field name="name">eth.contract.form</field>
+            <field name="model">eth.contract</field>
+            <field name="arch" type="xml">
+                <form string="Contract">
+                    <header>
+                        <field
+                            name="state"
+                            widget="statusbar"
+                            options="{'clickable': '1'}"
+                        />
+                    </header>
+                    <sheet>
+                        <group>
+                            <div class="oe_title">
+                                <label for="name" string="Contract name" />
+                                <h1>
+                                    <field name="name" />
+                                </h1>
+                            </div>
+                        </group>
+                        <group>
+                            <field name="sol_file" filename="sol_file_name" />
+                            <field name="sol_file_name" invisible="1" />
+                            <field name="bytecode_file" filename="bytecode_file_name" />
+                            <field name="bytecode_file_name" invisible="1" />
+                            <field name="abi_file" filename="abi_file_name" />
+                            <field name="abi_file_name" invisible="1" />
+                            <field name="model_id" />
+                            <field name="state_ids" />
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="action_contract_state_machine" model="ir.actions.act_window">
+            <field name="name">Contracts</field>
+            <field name="res_model">eth.contract</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help">
+                To create a contract with an state machine inside, is needed a two-dimensional of this basic states.
+                This contract can be assigned to an any model in Odoo
+
+                Each position of the first dimension corresponds to a current state.
+                Each position of the second dimension will correspond to the following possible states through which the state machine can pass or not.
+            </field>
+        </record>
+        <menuitem
+            id="ethereum_state_machine.menu_root"
+            name="Ethereum State Machine"
+            web_icon="ethereum_state_machine,static/description/icon.png"
+            sequence="10"
+        />
+        <menuitem
+            id="ethereum_state_machine.menu_settings_state_machine"
+            name="Settings"
+            parent="ethereum_state_machine.menu_root"
+            sequence="10"
+        />
+        <menuitem
+            id="ethereum_state_machine.menu_contract_state_machine"
+            parent="ethereum_state_machine.menu_settings_state_machine"
+            name="Contracts"
+            action="action_contract_state_machine"
+            sequence="20"
+        />
+    </data>
+</odoo>

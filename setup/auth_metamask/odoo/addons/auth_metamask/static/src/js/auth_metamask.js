@@ -16,8 +16,8 @@ odoo.define("auth_metamask.client", function(require) {
                 this.displayNotification({
                     title: _t("Something went wrong."),
                     message: _t("Template does not loaded."),
-                    type: "danger",
-                    sticky: false,
+                    type: "error",
+                    sticky: true,
                 });
             }
             return def;
@@ -45,8 +45,8 @@ odoo.define("auth_metamask.client", function(require) {
                         _t(
                             "You need to sign the message to be able to log in. Error getted "
                         ) + err,
-                    type: "danger",
-                    sticky: false,
+                    type: "error",
+                    sticky: true,
                 });
             }
         },
@@ -58,7 +58,7 @@ odoo.define("auth_metamask.client", function(require) {
                 self.displayNotification({
                     title: _t("Something went wrong."),
                     message: _t("Please install MetaMask first."),
-                    type: "danger",
+                    type: "error",
                     sticky: false,
                 });
                 return;
@@ -73,8 +73,8 @@ odoo.define("auth_metamask.client", function(require) {
                 self.displayNotification({
                     title: _t("Something went wrong."),
                     message: _t("You need to allow MetaMask."),
-                    type: "danger",
-                    sticky: false,
+                    type: "error",
+                    sticky: true,
                 });
                 return;
             }
@@ -84,8 +84,8 @@ odoo.define("auth_metamask.client", function(require) {
                 self.displayNotification({
                     title: _t("Something went wrong."),
                     message: _t("Please activate MetaMask first."),
-                    type: "danger",
-                    sticky: false,
+                    type: "error",
+                    sticky: true,
                 });
                 return;
             }
@@ -95,30 +95,19 @@ odoo.define("auth_metamask.client", function(require) {
                 .then(
                     function(adr_nonce) {
                         var jsonResult = JSON.parse(adr_nonce);
-                        if (!jsonResult.nonce) {
-                            self.displayNotification({
-                                title: _t("Something went wrong."),
-                                message: _t(
-                                    "No user with that Blockchain address is found"
-                                ),
-                                type: "danger",
-                                sticky: false,
-                            });
-                        } else {
-                            return self.handleSignMessage(
-                                // eslint-disable-next-line
-                                web3,
-                                jsonResult.public_address,
-                                jsonResult.nonce
-                            );
-                        }
+                        return self.handleSignMessage(
+                            // eslint-disable-next-line
+                            web3,
+                            jsonResult.public_address,
+                            jsonResult.nonce
+                        );
                     },
                     function(error) {
                         self.displayNotification({
                             title: _t("Something went wrong."),
-                            message: error.responseText,
-                            type: "danger",
-                            sticky: false,
+                            message: error,
+                            type: "error",
+                            sticky: true,
                         });
                     }
                 )
@@ -136,8 +125,8 @@ odoo.define("auth_metamask.client", function(require) {
                             self.displayNotification({
                                 title: _t("Something went wrong."),
                                 message: response.responseText,
-                                type: "danger",
-                                sticky: false,
+                                type: "error",
+                                sticky: true,
                             });
                         });
                 });

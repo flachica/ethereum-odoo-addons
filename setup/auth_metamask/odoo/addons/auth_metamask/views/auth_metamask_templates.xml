@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template
+        id="assets_frontend"
+        inherit_id="web.assets_frontend"
+        name="Metamask Assets"
+    >
+        <xpath expr="//link[last()]" position="after">
+            <link
+                rel="stylesheet"
+                type="text/scss"
+                href="/auth_metamask/static/src/scss/auth_metamask.scss"
+            />
+        </xpath>
+        <xpath expr="//script[last()]" position="after">
+            <script
+                type="text/javascript"
+                src="/auth_metamask/static/src/lib/web3.min.js"
+            />
+            <script
+                type="text/javascript"
+                src="/auth_metamask/static/src/js/auth_metamask.js"
+            />
+        </xpath>
+    </template>
+    <template id="metamask_provider" name="Metamask Provider">
+        <em t-attf-class="d-block text-center text-muted small">- or -</em>
+        <div
+            class="o_auth_metamask_provider list-group mt-1 mb-1 text-left fa-metamask-square"
+        >
+            <a class="list-group-item list-group-item-action py-2 metamask-login">
+                    Login with
+                    <img
+                    src="/auth_metamask/static/src/img/mm-logo.svg"
+                    class="metamask-square o_custom_icon"
+                />
+                </a>
+        </div>
+    </template>
+    <template id="login" inherit_id="web.login" name="Metamask Login button">
+        <xpath expr="//form" position="before">
+            <t t-set="form_small" t-value="True" />
+        </xpath>
+        <xpath expr="//div[hasclass('o_login_auth')]" position="inside">
+            <t t-call="auth_metamask.metamask_provider" />
+        </xpath>
+    </template>
+</odoo>

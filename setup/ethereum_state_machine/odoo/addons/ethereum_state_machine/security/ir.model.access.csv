@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_eth_contract_user,eth_contract_user,model_eth_contract,base.group_user,1,1,1,1
+access_eth_contract_state_user,eth_contract_state_user,model_eth_contract_state,base.group_user,1,1,1,1
+access_eth_contract_state_transition_user,eth_contract_state_transition_user,model_eth_contract_state_transition,base.group_user,1,1,1,1
+access_eth_contract_instance,access_eth_contract_instance,model_eth_contract_instance,base.group_user,1,1,1,1
