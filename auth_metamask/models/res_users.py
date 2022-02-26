@@ -2,6 +2,7 @@ import logging
 import random
 from math import floor
 
+# pylint: disable=W7936
 from eth_account.messages import defunct_hash_message
 from web3.auto import w3
 
@@ -19,10 +20,8 @@ class Users(models.Model):
         for user_id in self:
             user_id.nonce = floor(random.random() * 1000000)
 
-    nonce = fields.Integer(
-        string="Nonce", required=True, compute="_compute_nonce", store=True
-    )
-    public_address = fields.Char(string="Public Address", required=True, index=True)
+    nonce = fields.Integer(required=True, compute="_compute_nonce", store=True)
+    public_address = fields.Char(required=True, index=True)
 
     _sql_constraints = [
         (
@@ -38,7 +37,7 @@ class Users(models.Model):
         return
 
     @classmethod
-    def _login(cls, db, login, password):
+    def _login(cls, db, login, password, user_agent_env):
         if not password:
             raise AccessDenied()
         ip = request.httprequest.environ["REMOTE_ADDR"] if request else "n/a"
@@ -60,7 +59,7 @@ class Users(models.Model):
                     if not user:
                         raise AccessDenied()
                     user = user.with_user(user)
-                    user._check_credentials(password)
+                    user._check_credentials(password, user_agent_env)
                     user._update_last_login()
         except AccessDenied:
             _logger.info("Login failed for db:%s login:%s from %s", db, login, ip)
@@ -70,9 +69,9 @@ class Users(models.Model):
 
         return user.id
 
-    def _check_credentials(self, password):
+    def _check_credentials(self, password, user_agent_env):
         try:
-            super()._check_credentials(password)
+            super()._check_credentials(password, user_agent_env)
         except AccessDenied:
             _logger.info("Login failed trying with ethereum signed request")
             msg = "Please, sign this nonce to allow your login: " + str(self.nonce)

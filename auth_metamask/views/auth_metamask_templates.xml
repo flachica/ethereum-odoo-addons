@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <template
+    <!-- <template
         id="assets_frontend"
         inherit_id="web.assets_frontend"
         name="Metamask Assets"
@@ -22,7 +22,7 @@
                 src="/auth_metamask/static/src/js/auth_metamask.js"
             />
         </xpath>
-    </template>
+    </template> -->
     <template id="metamask_provider" name="Metamask Provider">
         <em t-attf-class="d-block text-center text-muted small">- or -</em>
         <div

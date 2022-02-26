@@ -1,4 +1,4 @@
-odoo.define("auth_metamask.client", function(require) {
+odoo.define("auth_metamask.client", function (require) {
     "use strict";
 
     var publicWidget = require("web.public.widget");
@@ -10,7 +10,7 @@ odoo.define("auth_metamask.client", function(require) {
         events: {
             "click .metamask-login": "_onMetamaskLoginClick",
         },
-        start: function() {
+        start: function () {
             var def = this._super.apply(this, arguments);
             if (!$(".metamask-login").length) {
                 this.displayNotification({
@@ -22,7 +22,7 @@ odoo.define("auth_metamask.client", function(require) {
             }
             return def;
         },
-        handleSignMessage: async function(web3, publicAddress, nonce) {
+        handleSignMessage: async function (web3, publicAddress, nonce) {
             try {
                 const signature = await web3.eth.personal.sign(
                     _t("Please, sign this nonce to allow your login: ") + nonce,
@@ -50,7 +50,7 @@ odoo.define("auth_metamask.client", function(require) {
                 });
             }
         },
-        loginFlow: async function(self) {
+        loginFlow: async function (self) {
             if (!self) {
                 self = this;
             }
@@ -65,17 +65,20 @@ odoo.define("auth_metamask.client", function(require) {
             }
             try {
                 // Request account access if needed
-                await window.ethereum.enable();
+                await window.ethereum.request({
+                    method: "eth_requestAccounts",
+                });
 
                 // eslint-disable-next-line
                 web3 = new Web3(window.ethereum);
             } catch (error) {
                 self.displayNotification({
                     title: _t("Something went wrong."),
-                    message: _t("You need to allow MetaMask."),
+                    message: _t("There are technical problems. Check the console."),
                     type: "danger",
                     sticky: false,
                 });
+                console.log(error);
                 return;
             }
             // eslint-disable-next-line
@@ -93,7 +96,7 @@ odoo.define("auth_metamask.client", function(require) {
             const publicAddress = coinbase.toLowerCase();
             $.get("/metamask/" + publicAddress, {})
                 .then(
-                    function(adr_nonce) {
+                    function (adr_nonce) {
                         var jsonResult = JSON.parse(adr_nonce);
                         if (!jsonResult.nonce) {
                             self.displayNotification({
@@ -113,7 +116,7 @@ odoo.define("auth_metamask.client", function(require) {
                             );
                         }
                     },
-                    function(error) {
+                    function (error) {
                         self.displayNotification({
                             title: _t("Something went wrong."),
                             message: error.responseText,
@@ -122,17 +125,17 @@ odoo.define("auth_metamask.client", function(require) {
                         });
                     }
                 )
-                .then(function(signed) {
+                .then(function (signed) {
                     var data = {
                         login: signed.publicAddress,
                         password: signed.signature,
                         csrf_token: $("[name='csrf_token']").val(),
                     };
                     $.post($("form").action, data)
-                        .then(function() {
+                        .then(function () {
                             window.location = "/web";
                         })
-                        .fail(function(response) {
+                        .fail(function (response) {
                             self.displayNotification({
                                 title: _t("Something went wrong."),
                                 message: response.responseText,
@@ -142,7 +145,7 @@ odoo.define("auth_metamask.client", function(require) {
                         });
                 });
         },
-        _onMetamaskLoginClick: async function() {
+        _onMetamaskLoginClick: async function () {
             var self = this;
             if (!window.ethereum) {
                 this.displayNotification({
@@ -153,7 +156,7 @@ odoo.define("auth_metamask.client", function(require) {
                 });
                 window.addEventListener(
                     "ethereum#initialized",
-                    function() {
+                    function () {
                         self.loginFlow(this);
                     },
                     {once: true}
@@ -161,7 +164,7 @@ odoo.define("auth_metamask.client", function(require) {
 
                 // If the event is not dispatched by the end of the timeout,
                 // the user probably doesn't have MetaMask installed.
-                setTimeout(function() {
+                setTimeout(function () {
                     self.loginFlow(self);
                 }, 3000); // 3 seconds
 

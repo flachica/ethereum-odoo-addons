@@ -53,13 +53,9 @@ Credits
 Authors
 ~~~~~~~
 
-* `Guadaltech <https://guadaltech.es/>`__
-
-  * Fernando La Chica <fernandolachica@gmail.com>
+* Fernando La Chica <fernandolachica@gmail.com>
 
 Contributors
 ~~~~~~~~~~~~
 
-* `Guadaltech <https://guadaltech.es/>`__
-
-  * Fernando La Chica <fernandolachica@gmail.com>
+* Fernando La Chica <fernandolachica@gmail.com>
